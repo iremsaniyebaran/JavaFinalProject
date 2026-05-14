@@ -1,3 +1,6 @@
+import javax.swing.table.TableColumn;
+import javax.swing.text.TableView;
+
 import javafx.application.Application;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
@@ -88,8 +91,8 @@ public class WardrobeMain extends Application {
     // --- Placeholder Methods ---
 
     private void handleAddItem() {
-        System.out.println("Add New Item clicked - Opening Dialog...");
-        // Logic to open a new window for input will go here
+        ItemForm form = new ItemForm();
+        form.display("Add New Item");
     }
 
     private void handleEditItem() {
