@@ -1,6 +1,3 @@
-import javax.swing.table.TableColumn;
-import javax.swing.text.TableView;
-
 import javafx.application.Application;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
@@ -10,8 +7,10 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import java.util.Optional;
 
 public class WardrobeMain extends Application {
 
@@ -64,7 +63,7 @@ public class WardrobeMain extends Application {
         editButton.setStyle(buttonStyle);
         deleteButton.setStyle("-fx-background-color: #c0392b; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 15;");
 
-        // Button actions (Placeholders)
+        // Button actions
         addButton.setOnAction(e -> handleAddItem());
         editButton.setOnAction(e -> handleEditItem());
         deleteButton.setOnAction(e -> handleDeleteItem());
@@ -88,7 +87,7 @@ public class WardrobeMain extends Application {
         primaryStage.show();
     }
 
-    // --- Placeholder Methods ---
+    // --- Navigation Methods ---
 
     private void handleAddItem() {
         ItemForm form = new ItemForm();
@@ -97,25 +96,43 @@ public class WardrobeMain extends Application {
 
     private void handleEditItem() {
         ClothingItem selected = table.getSelectionModel().getSelectedItem();
+
         if (selected != null) {
-            System.out.println("Editing: " + selected.getBrand());
+            ItemForm form = new ItemForm();
+            form.display("Edit Item");
         } else {
-            System.out.println("No item selected to edit.");
+            showNoSelectionAlert("Edit");
         }
     }
 
     private void handleDeleteItem() {
         ClothingItem selected = table.getSelectionModel().getSelectedItem();
+
         if (selected != null) {
-            System.out.println("Deleting: " + selected.getBrand());
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Confirm Deletion");
+            alert.setHeaderText("Delete Item");
+            alert.setContentText("Are you sure you want to delete this item?");
+
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.isPresent() && result.get() == ButtonType.OK) {
+                System.out.println("Deleting from database: " + selected.getBrand());
+            }
         } else {
-            System.out.println("No item selected to delete.");
+            showNoSelectionAlert("Delete");
         }
+    }
+
+    private void showNoSelectionAlert(String action) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("No Selection");
+        alert.setHeaderText(null);
+        alert.setContentText("Please select an item in the table to " + action.toLowerCase() + ".");
+        alert.showAndWait();
     }
 
     /**
      * Inner class representing the Data Model.
-     * This makes it easy for the TableView to display data.
      */
     public static class ClothingItem {
         private final SimpleStringProperty category;
