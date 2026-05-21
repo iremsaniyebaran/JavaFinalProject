@@ -1,5 +1,19 @@
-public class App {
-    public static void main(String[] args) throws Exception {
-        System.out.println("Hello, World!");
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.stage.Stage;
+
+public class App extends Application {
+    @Override
+    public void start(Stage stage) {
+        Label label = new Label("Hello, JavaFX 21 + JDK 21!");
+        Scene scene = new Scene(label, 360, 120);
+        stage.setTitle("JavaFX Test");
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    public static void main(String[] args) { 
+        launch(args); 
     }
 }
