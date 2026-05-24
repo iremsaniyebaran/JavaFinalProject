@@ -1,18 +1,11 @@
-## Getting Started
+# Personal Wardrobe Management System
 
-Welcome to the VS Code Java world. Here is a guideline to help you get started to write Java code in Visual Studio Code.
+A desktop application built with Java and JavaFX to help users organize, track, and manage their closet items in a clean, modern dashboard.
 
-## Folder Structure
+## Week 3 Progress: OOP & GUI Finalization
+* **Object-Oriented Programming (OOP):** Implemented an abstract base class `WardrobeItem` and two specialized subclasses: `Clothing` and `Accessory`, demonstrating inheritance and encapsulation.
+* **Polymorphism:** The main `TableView` dynamically displays specific details depending on the instance type (e.g., Size for Clothing, Type for Accessories).
+* **In-Memory Storage:** The GUI is fully wired to create real objects and store them in an `ObservableList` during runtime.
+* **Modern UI:** Applied a professional, flat-design styling to the main dashboard using JavaFX inline CSS, featuring a hero banner and card-layout table.
 
-The workspace contains two folders by default, where:
-
-- `src`: the folder to maintain sources
-- `lib`: the folder to maintain dependencies
-
-Meanwhile, the compiled output files will be generated in the `bin` folder by default.
-
-> If you want to customize the folder structure, open `.vscode/settings.json` and update the related settings there.
-
-## Dependency Management
-
-The `JAVA PROJECTS` view allows you to manage your dependencies. More details can be found [here](https://github.com/microsoft/vscode-java-dependency#manage-dependencies).
+**Next Steps:** Connect to an SQLite database for persistent storage (Week 4).
