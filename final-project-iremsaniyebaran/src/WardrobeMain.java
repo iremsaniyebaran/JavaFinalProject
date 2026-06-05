@@ -198,6 +198,10 @@ public class WardrobeMain extends Application {
     }
 
     public static void main(String[] args) {
+        // Quick connection test — remove this after confirming it works
+        DatabaseManager db = DatabaseManager.getInstance();
+        System.out.println("Connection active: " + (db.getConnection() != null));
+
         launch(args);
     }
 }
