@@ -117,6 +117,10 @@ public class WardrobeMain extends Application {
         Button editButton   = new Button("✎ Edit Item");
         Button deleteButton = new Button("🗑 Delete Item");
 
+        addButton.setTooltip(new Tooltip("Add a new piece of clothing or accessory"));
+        editButton.setTooltip(new Tooltip("Edit the selected item's details"));
+        deleteButton.setTooltip(new Tooltip("Permanently remove the selected item"));
+
         addButton.setStyle(BUTTON_ADD_STYLE);
         editButton.setStyle(BUTTON_EDIT_STYLE);
         deleteButton.setStyle(BUTTON_DELETE_STYLE);
