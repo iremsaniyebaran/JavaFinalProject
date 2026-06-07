@@ -8,4 +8,10 @@ A desktop application built with Java and JavaFX to help users organize, track, 
 * **In-Memory Storage:** The GUI is fully wired to create real objects and store them in an `ObservableList` during runtime.
 * **Modern UI:** Applied a professional, flat-design styling to the main dashboard using JavaFX inline CSS, featuring a hero banner and card-layout table.
 
-**Next Steps:** Connect to an SQLite database for persistent storage (Week 4).
+## Week 5 Progress: Database Connection and CRUD
+* **SQLite Integration:** Added `sqlite-jdbc` dependency to seamlessly connect the Java application to a local database.
+* **DatabaseManager (Singleton):** Implemented a thread-safe Singleton class to ensure only one active database connection is open during runtime. The database file (`wardrobe.db`) and `wardrobe_items` table are created automatically on the first run.
+* **Data Access Object (DAO):** Created `WardrobeDAO.java` to handle all SQL operations (INSERT, SELECT, UPDATE, DELETE) using `PreparedStatement` to prevent SQL injection.
+* **GUI & Database Wiring:** Fully connected the JavaFX frontend (`WardrobeMain`) to the backend database. The TableView now loads real, persisted data upon startup, and all add, edit, and delete actions directly modify the SQLite database.
+
+**Next Steps:** Polish the UI, add data validation, and finalize the application for the final project submission.
