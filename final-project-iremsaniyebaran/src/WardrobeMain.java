@@ -7,9 +7,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
 import java.util.List;
@@ -21,26 +19,29 @@ public class WardrobeMain extends Application {
     private ObservableList<WardrobeItem> wardrobeList;
     private WardrobeDAO dao;
 
+    // Status bar label — declared as a field so all methods can update it
+    private Label statusLabel;
+
     // --- Styling Constants ---
-    private final String HEADER_BG_STYLE         = "-fx-background-color: #2c3e50; -fx-padding: 20 25 20 25;";
-    private final String MAIN_BG_COLOR            = "-fx-background-color: #f5f6fa;";
-    private final String BUTTON_ADD_STYLE         = "-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-family: 'Segoe UI', sans-serif; -fx-font-size: 13px; -fx-padding: 10 20; -fx-background-radius: 5; -fx-cursor: hand;";
-    private final String BUTTON_EDIT_STYLE        = "-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-family: 'Segoe UI', sans-serif; -fx-font-size: 13px; -fx-padding: 10 20; -fx-background-radius: 5; -fx-cursor: hand;";
-    private final String BUTTON_DELETE_STYLE      = "-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-family: 'Segoe UI', sans-serif; -fx-font-size: 13px; -fx-padding: 10 20; -fx-background-radius: 5; -fx-cursor: hand;";
-    private final String TABLE_CARD_STYLE         = "-fx-background-color: #ffffff; -fx-background-radius: 8; -fx-border-color: #dcdde1; -fx-border-width: 1; -fx-border-radius: 8; -fx-padding: 5;";
+    private final String HEADER_BG_STYLE    = "-fx-background-color: #2c3e50; -fx-padding: 20 25 20 25;";
+    private final String MAIN_BG_COLOR      = "-fx-background-color: #f5f6fa;";
+    private final String BUTTON_ADD_STYLE   = "-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-family: 'Segoe UI', sans-serif; -fx-font-size: 13px; -fx-padding: 10 20; -fx-background-radius: 5; -fx-cursor: hand;";
+    private final String BUTTON_EDIT_STYLE  = "-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-family: 'Segoe UI', sans-serif; -fx-font-size: 13px; -fx-padding: 10 20; -fx-background-radius: 5; -fx-cursor: hand;";
+    private final String BUTTON_DELETE_STYLE= "-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-family: 'Segoe UI', sans-serif; -fx-font-size: 13px; -fx-padding: 10 20; -fx-background-radius: 5; -fx-cursor: hand;";
+    private final String TABLE_CARD_STYLE   = "-fx-background-color: #ffffff; -fx-background-radius: 8; -fx-border-color: #dcdde1; -fx-border-width: 1; -fx-border-radius: 8; -fx-padding: 5;";
+    private final String STATUS_BAR_STYLE   = "-fx-background-color: #dfe6e9; -fx-padding: 6 15; -fx-border-color: #b2bec3; -fx-border-width: 1 0 0 0;";
+    private final String STATUS_LABEL_STYLE = "-fx-font-size: 12px; -fx-text-fill: #636e72; -fx-font-family: 'Segoe UI', sans-serif; -fx-font-weight: bold;";
 
     @Override
     public void start(Stage primaryStage) {
         primaryStage.setTitle("Personal Wardrobe Management System");
 
-        // Step 1: Initialize the DAO 
+        // Initialize DAO and load data
         dao = new WardrobeDAO();
-
-        // Step 2: Load all persisted items from the database into memory
         wardrobeList = FXCollections.observableArrayList();
         loadItemsFromDatabase();
 
-        // --- TOP: Menu Bar & Hero Header ---
+        // --- TOP: Menu Bar ---
         MenuBar menuBar = new MenuBar();
         menuBar.setStyle("-fx-background-color: #ffffff; -fx-border-color: #dcdde1; -fx-border-width: 0 0 1 0;");
         Menu fileMenu = new Menu("File");
@@ -49,21 +50,18 @@ public class WardrobeMain extends Application {
         fileMenu.getItems().add(exitItem);
         menuBar.getMenus().add(fileMenu);
 
+        // --- Hero Header Banner ---
         Label titleLabel = new Label("My Digital Wardrobe");
         titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #ffffff; -fx-font-family: 'Segoe UI', sans-serif;");
 
         Label subtitleLabel = new Label("Organize, track, and manage your closet items in one clean dashboard.");
         subtitleLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #bdc3c7; -fx-font-family: 'Segoe UI', sans-serif;");
 
-        VBox headerTextContainer = new VBox(4);
-        headerTextContainer.getChildren().addAll(titleLabel, subtitleLabel);
-
-        VBox topPane = new VBox();
+        VBox headerTextContainer = new VBox(4, titleLabel, subtitleLabel);
+        VBox topPane = new VBox(headerTextContainer);
         topPane.setStyle(HEADER_BG_STYLE);
-        topPane.getChildren().add(headerTextContainer);
 
-        VBox menuAndHeader = new VBox();
-        menuAndHeader.getChildren().addAll(menuBar, topPane);
+        VBox menuAndHeader = new VBox(menuBar, topPane);
 
         // --- CENTER: TableView ---
         table = new TableView<>();
@@ -71,10 +69,8 @@ public class WardrobeMain extends Application {
         table.setStyle("-fx-background-color: transparent; -fx-table-cell-border-color: #f1f2f6;");
 
         TableColumn<WardrobeItem, String> typeCol = new TableColumn<>("Classification");
-        typeCol.setCellValueFactory(cellData -> {
-            WardrobeItem item = cellData.getValue();
-            return new SimpleStringProperty(item instanceof Clothing ? "Clothing" : "Accessory");
-        });
+        typeCol.setCellValueFactory(cellData ->
+                new SimpleStringProperty(cellData.getValue() instanceof Clothing ? "Clothing" : "Accessory"));
         typeCol.setMinWidth(120);
 
         TableColumn<WardrobeItem, String> brandCol = new TableColumn<>("Brand / Label");
@@ -88,11 +84,10 @@ public class WardrobeMain extends Application {
         TableColumn<WardrobeItem, String> detailCol = new TableColumn<>("Item Details");
         detailCol.setCellValueFactory(cellData -> {
             WardrobeItem item = cellData.getValue();
-            if (item instanceof Clothing) {
+            if (item instanceof Clothing)
                 return new SimpleStringProperty("Size: " + ((Clothing) item).getSize());
-            } else if (item instanceof Accessory) {
+            else if (item instanceof Accessory)
                 return new SimpleStringProperty("Type: " + ((Accessory) item).getAccessoryType());
-            }
             return new SimpleStringProperty("");
         });
         detailCol.setMinWidth(200);
@@ -101,18 +96,16 @@ public class WardrobeMain extends Application {
         table.setPlaceholder(new Label("Your wardrobe is empty. Click '+ Add New Item' to get started!"));
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-        VBox tableContainer = new VBox();
+        VBox tableContainer = new VBox(table);
         tableContainer.setStyle(TABLE_CARD_STYLE);
-        tableContainer.getChildren().add(table);
-        VBox.setVgrow(table, javafx.scene.layout.Priority.ALWAYS);
+        VBox.setVgrow(table, Priority.ALWAYS);
 
-        VBox centerPane = new VBox();
+        VBox centerPane = new VBox(tableContainer);
         centerPane.setPadding(new Insets(20));
         centerPane.setStyle(MAIN_BG_COLOR);
-        centerPane.getChildren().add(tableContainer);
-        VBox.setVgrow(tableContainer, javafx.scene.layout.Priority.ALWAYS);
+        VBox.setVgrow(tableContainer, Priority.ALWAYS);
 
-        // --- BOTTOM: Action Buttons ---
+        // --- BOTTOM: Action Buttons Row ---
         Button addButton    = new Button("+ Add New Item");
         Button editButton   = new Button("✎ Edit Item");
         Button deleteButton = new Button("🗑 Delete Item");
@@ -129,23 +122,31 @@ public class WardrobeMain extends Application {
         editButton.setOnAction(e -> handleEditItem());
         deleteButton.setOnAction(e -> handleDeleteItem());
 
-        HBox actionBox = new HBox(15);
-        actionBox.setPadding(new Insets(15, 25, 25, 25));
+        HBox actionBox = new HBox(15, addButton, editButton, deleteButton);
+        actionBox.setPadding(new Insets(15, 25, 15, 25)); // Adjusted padding for status bar room
         actionBox.setAlignment(Pos.CENTER_RIGHT);
-        actionBox.getChildren().addAll(addButton, editButton, deleteButton);
         actionBox.setStyle(MAIN_BG_COLOR);
+
+        // --- STATUS BAR ---
+        statusLabel = new Label();
+        statusLabel.setStyle(STATUS_LABEL_STYLE);
+        updateStatusBar(); // Initialize the count
+
+        HBox statusBar = new HBox(statusLabel);
+        statusBar.setStyle(STATUS_BAR_STYLE);
+        statusBar.setAlignment(Pos.CENTER_LEFT);
+
+        VBox bottomPane = new VBox(actionBox, statusBar);
 
         BorderPane root = new BorderPane();
         root.setTop(menuAndHeader);
         root.setCenter(centerPane);
-        root.setBottom(actionBox);
+        root.setBottom(bottomPane);
 
-        Scene scene = new Scene(root, 850, 650);
+        Scene scene = new Scene(root, 850, 680); // Made slightly taller for the status bar
         primaryStage.setScene(scene);
         
-        // Ensure connection closes cleanly on exit
         primaryStage.setOnCloseRequest(e -> handleExit(primaryStage));
-        
         primaryStage.show();
     }
 
@@ -154,6 +155,7 @@ public class WardrobeMain extends Application {
     private void loadItemsFromDatabase() {
         List<WardrobeItem> items = dao.getAllItems();
         wardrobeList.setAll(items);
+        if (statusLabel != null) updateStatusBar();
     }
 
     private void handleAddItem() {
@@ -164,6 +166,7 @@ public class WardrobeMain extends Application {
             boolean success = dao.insertItem(newItem);
             if (success) {
                 wardrobeList.add(newItem);
+                updateStatusBar(); // Update count on add
             } else {
                 showErrorAlert("Could not add item to database.");
             }
@@ -178,7 +181,7 @@ public class WardrobeMain extends Application {
             WardrobeItem updatedItem = form.display("Edit Item", selected);
             
             if (updatedItem != null) {
-                updatedItem.setId(selected.getId()); // Carry over ID for the DB
+                updatedItem.setId(selected.getId());
                 boolean success = dao.updateItem(updatedItem);
                 
                 if (success) {
@@ -207,6 +210,7 @@ public class WardrobeMain extends Application {
                 boolean success = dao.deleteItem(selected.getId());
                 if (success) {
                     wardrobeList.remove(selected);
+                    updateStatusBar(); // Update count on delete
                 } else {
                     showErrorAlert("Could not delete item from database.");
                 }
@@ -222,6 +226,16 @@ public class WardrobeMain extends Application {
     }
 
     // --- UTILITIES ---
+
+    /**
+     * Updates the text in the status bar based on the current list size.
+     */
+    private void updateStatusBar() {
+        if (wardrobeList != null && statusLabel != null) {
+            int total = wardrobeList.size();
+            statusLabel.setText("Total Items in Wardrobe: " + total);
+        }
+    }
 
     private void showNoSelectionAlert(String action) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
