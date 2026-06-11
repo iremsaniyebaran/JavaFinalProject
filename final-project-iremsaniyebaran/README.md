@@ -15,3 +15,8 @@ A desktop application built with Java and JavaFX to help users organize, track, 
 * **GUI & Database Wiring:** Fully connected the JavaFX frontend (`WardrobeMain`) to the backend database. The TableView now loads real, persisted data upon startup, and all add, edit, and delete actions directly modify the SQLite database.
 
 **Next Steps:** Polish the UI, add data validation, and finalize the application for the final project submission.
+
+## Week 6 Progress: Finalization and Submission
+* **Input Validation:** Added strict, field-by-field validation to `ItemForm.java` to prevent empty submissions, ensure data integrity, and provide specific error feedback to the user.
+* **Edge Cases & UX:** Prevented application crashes from bad inputs and disabled the classification dropdown during item edits to avoid relational database conflicts.
+* **UI Polish:** Integrated a dynamic Status Bar at the bottom of the main dashboard to continuously track and display the total number of wardrobe items.
