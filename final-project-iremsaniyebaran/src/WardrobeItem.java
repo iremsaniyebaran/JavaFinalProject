@@ -1,23 +1,33 @@
+/**
+ * Abstract base class representing a generic item in the wardrobe.
+ * This class demonstrates encapsulation and serves as the foundation 
+ * for polymorphism in the Wardrobe Management System.
+ */
 public abstract class WardrobeItem {
-    private int id; // Useful for SQLite primary keys
+    
+    private int id; // Database primary key
     private String color;
     private String brand;
 
-    // Constructor for creating an item with an ID (e.g., loaded from database)
+    /**
+     * Default constructor for creating a new item before saving to the database.
+     */
+    public WardrobeItem(String color, String brand) {
+        this.color = color;
+        this.brand = brand;
+    }
+
+    /**
+     * Overloaded constructor for reconstructing an item loaded from the database.
+     */
     public WardrobeItem(int id, String color, String brand) {
         this.id = id;
         this.color = color;
         this.brand = brand;
     }
 
-    // Constructor without ID (useful for creating new items before saving to database)
-    public WardrobeItem(String color, String brand) {
-        this.id = -1; // -1 represents an unsaved item
-        this.color = color;
-        this.brand = brand;
-    }
+    // --- Getters and Setters ---
 
-    // Getters and Setters
     public int getId() {
         return id;
     }
@@ -40,11 +50,5 @@ public abstract class WardrobeItem {
 
     public void setBrand(String brand) {
         this.brand = brand;
-    }
-
-    // A helper method for debugging
-    @Override
-    public String toString() {
-        return String.format("%s (Color: %s, Brand: %s)", getClass().getSimpleName(), color, brand);
     }
 }
