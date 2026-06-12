@@ -1,11 +1,13 @@
 /**
- * Abstract base class representing a generic item in the wardrobe.
- * This class demonstrates encapsulation and serves as the foundation 
- * for polymorphism in the Wardrobe Management System.
+ * Abstract base class representing a generic item in the Personal Wardrobe
+ * Management System.
+ *
+ * @author      İrem Saniye Baran
+ * @version     1.2
  */
 public abstract class WardrobeItem {
-    
-    private int id; // Database primary key
+
+    private int id = -1; // -1 = henüz veritabanına kaydedilmedi
     private String color;
     private String brand;
 
@@ -13,8 +15,8 @@ public abstract class WardrobeItem {
      * Default constructor for creating a new item before saving to the database.
      */
     public WardrobeItem(String color, String brand) {
-        this.color = color;
-        this.brand = brand;
+        setColor(color);
+        setBrand(brand);
     }
 
     /**
@@ -22,11 +24,16 @@ public abstract class WardrobeItem {
      */
     public WardrobeItem(int id, String color, String brand) {
         this.id = id;
-        this.color = color;
-        this.brand = brand;
+        setColor(color);
+        setBrand(brand);
     }
 
-    // --- Getters and Setters ---
+    /**
+     * Abstract method that concrete subclasses must implement to return their category type.
+     */
+    public abstract String getCategory();
+
+    // --- Getters and Setters with Input Validation ---
 
     public int getId() {
         return id;
@@ -41,6 +48,9 @@ public abstract class WardrobeItem {
     }
 
     public void setColor(String color) {
+        if (color == null || color.isBlank()) {
+            throw new IllegalArgumentException("Color cannot be empty");
+        }
         this.color = color;
     }
 
@@ -49,6 +59,14 @@ public abstract class WardrobeItem {
     }
 
     public void setBrand(String brand) {
+        if (brand == null || brand.isBlank()) {
+            throw new IllegalArgumentException("Brand cannot be empty");
+        }
         this.brand = brand;
+    }
+
+    @Override
+    public String toString() {
+        return brand + " (" + color + ")";
     }
 }

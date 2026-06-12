@@ -27,4 +27,8 @@ public class Clothing extends WardrobeItem {
     public String toString() {
         return super.toString() + " [Size: " + size + "]";
     }
+    @Override
+    public String getCategory() {
+        return "Clothing";
+    }
 }

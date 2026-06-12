@@ -27,4 +27,8 @@ public class Accessory extends WardrobeItem {
     public String toString() {
         return super.toString() + " [Type: " + accessoryType + "]";
     }
+    @Override
+    public String getCategory() {
+        return "Accessory";
+    }
 }
