@@ -3,43 +3,53 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+/**
+ * Singleton utility class responsible for managing the SQLite database connection lifecycle.
+ * Enforces a single active database connection across the entire JavaFX application
+ * to ensure thread safety and prevent database file locks.
+ *
+ * <p><strong>Design Pattern:</strong> Thread-safe Singleton Pattern</p>
+ *
+ * @author      İrem Saniye Baran
+ * @version     1.0
+ * @since       1.0
+ */
 public class DatabaseManager {
 
-    // The database file will be created in your project's root directory
-    private static final String DB_URL = "jdbc:sqlite:wardrobe.db";
-
-    // The single shared instance (Singleton Pattern)
     private static DatabaseManager instance;
-
-    // The single shared connection object
     private Connection connection;
+    private final String URL = "jdbc:sqlite:wardrobe.db";
 
     /**
-     * Private constructor — prevents other classes from calling 'new DatabaseManager()'.
-     * It immediately establishes the connection and sets up the schema.
+     * Private constructor to prevent direct instantiation from external classes.
+     * Automatically registers the SQLite JDBC driver, establishes the connection,
+     * and triggers the default table creation layout if it does not exist.
      */
     private DatabaseManager() {
         try {
-            // Step 1: Establish the connection to the SQLite file.
-            // SQLite will automatically CREATE the .db file if it doesn't exist yet.
-            connection = DriverManager.getConnection(DB_URL);
-            System.out.println("Database connection established successfully.");
-
-            // Step 2: Immediately create the table if it doesn't already exist.
-            initializeDatabase();
-
+            // Explicitly load the SQLite JDBC Driver
+            Class.forName("org.sqlite.JDBC");
+            connection = DriverManager.getConnection(URL);
+            System.out.println("SQLite Database connection established successfully.");
+            
+            // Generate necessary schema on first launch
+            createTable();
+        } catch (ClassNotFoundException e) {
+            System.err.println("ERROR: SQLite JDBC Driver not found. Add the JAR to your lib folder.");
+            e.printStackTrace();
         } catch (SQLException e) {
-            System.err.println("CRITICAL ERROR: Could not connect to the database.");
+            System.err.println("ERROR: Failed to connect to the local SQLite database file.");
             e.printStackTrace();
         }
     }
 
     /**
-     * The global access point for the DatabaseManager instance.
-     * This is called from any class that needs database access.
-     * @return The single shared DatabaseManager instance.
+     * Provides global access to the single, shared DatabaseManager instance.
+     * Uses synchronized block implementation to ensure thread safety during initialization.
+     *
+     * @return the active Singleton instance of DatabaseManager
      */
-    public static DatabaseManager getInstance() {
+    public static synchronized DatabaseManager getInstance() {
         if (instance == null) {
             instance = new DatabaseManager();
         }
@@ -47,51 +57,49 @@ public class DatabaseManager {
     }
 
     /**
-     * Returns the active connection object.
-     * Used by other methods (like in a future WardrobeDAO) to run SQL queries.
-     * @return The active SQLite Connection.
+     * Retrieves the active database connection session.
+     * Used by Data Access Objects (DAOs) to execute database queries.
+     *
+     * @return the active {@link Connection} object
      */
     public Connection getConnection() {
         return connection;
+        
     }
 
     /**
-     * Creates the wardrobe_items table if it does not already exist.
-     * This is safe to call every time the app starts because of 'IF NOT EXISTS'.
+     * Creates the core database schema required for the system during initial setup.
+     * Executes an structural DDL query to generate the 'wardrobe_items' table.
      */
-    private void initializeDatabase() {
-        // SQL statement to create our table
-        String createTableSQL = """
-                CREATE TABLE IF NOT EXISTS wardrobe_items (
-                    id          INTEGER PRIMARY KEY AUTOINCREMENT,
-                    item_type   TEXT    NOT NULL,
-                    brand       TEXT    NOT NULL,
-                    color       TEXT    NOT NULL,
-                    extra_detail TEXT   NOT NULL
-                );
-                """;
-
-        // A 'Statement' is the standard JDBC object for running SQL commands
+    private void createTable() {
+        String sql = "CREATE TABLE IF NOT EXISTS wardrobe_items ("
+                   + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                   + "item_type TEXT NOT NULL, "
+                   + "brand TEXT NOT NULL, "
+                   + "color TEXT NOT NULL, "
+                   + "extra_detail TEXT"
+                   + ");";
+                   
         try (Statement stmt = connection.createStatement()) {
-            stmt.execute(createTableSQL);
-            System.out.println("Database schema verified. Table 'wardrobe_items' is ready.");
+            stmt.execute(sql);
+            System.out.println("Database schema verified: 'wardrobe_items' table is ready.");
         } catch (SQLException e) {
-            System.err.println("ERROR: Could not create the wardrobe_items table.");
+            System.err.println("ERROR: Failed to construct database schema tables.");
             e.printStackTrace();
         }
     }
 
     /**
-     * Safely closes the database connection.
-     * This should be called when the application is shutting down.
+     * Safely closes the active database connection when the application terminates.
+     * Invoked automatically by the system shutdown hooks to prevent memory leaks.
      */
     public void closeConnection() {
         if (connection != null) {
             try {
                 connection.close();
-                System.out.println("Database connection closed cleanly.");
+                System.out.println("Database connection closed cleanly. No resources leaked.");
             } catch (SQLException e) {
-                System.err.println("ERROR: Could not close the database connection.");
+                System.err.println("ERROR: Problem occurred while closing database connection.");
                 e.printStackTrace();
             }
         }
